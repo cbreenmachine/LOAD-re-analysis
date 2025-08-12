@@ -9,7 +9,7 @@ rule bismark_genome_preparation:
     output:
         directory("bismark_genome")
     conda:
-        "bismark"
+        "envs/bismark"
     threads: 8
     shell:
         """
@@ -28,7 +28,7 @@ rule bismark_alignment:
         bam = f"{BISMARK_DIR}/{{sample}}_bismark.bam",
         report = f"{BISMARK_DIR}/{{sample}}_bismark_report.txt"
     conda:
-        "bismark"
+        "envs/bismark"
     threads: 8
     shell:
         """
