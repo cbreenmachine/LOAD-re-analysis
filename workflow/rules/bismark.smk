@@ -8,8 +8,8 @@ rule bismark_genome_preparation:
         ref = REFERENCE
     output:
         # Bismark creates this subdirectory structure
-        ct_conv = "bismark_genome/Bisulfite_Genome/CT_conversion/genome_mfa.CT_conversion.fa",
-        ga_conv = "bismark_genome/Bisulfite_Genome/GA_conversion/genome_mfa.GA_conversion.fa"
+        ct_conv = f"{BISMARK_DIR}/Bisulfite_Genome/CT_conversion/genome_mfa.CT_conversion.fa",
+        ga_conv = f"{BISMARK_DIR}/Bisulfite_Genome/GA_conversion/genome_mfa.GA_conversion.fa"
     conda:
         "../envs/bismark"
     threads: 8
@@ -23,9 +23,10 @@ rule bismark_genome_preparation:
 # Run Bismark alignment
 rule bismark_alignment:
     input:
+        ct_conv = f"{BISMARK_DIR}/Bisulfite_Genome/CT_conversion/genome_mfa.CT_conversion.fa",
+        ga_conv = f"{BISMARK_DIR}/Bisulfite_Genome/GA_conversion/genome_mfa.GA_conversion.fa",
         r1 = f"{EXTRACTED_READS_DIR}/{{sample}}_R1.fastq.gz",
-        r2 = f"{EXTRACTED_READS_DIR}/{{sample}}_R2.fastq.gz",
-        genome = "bismark_genome"
+        r2 = f"{EXTRACTED_READS_DIR}/{{sample}}_R2.fastq.gz"
     output:
         bam = f"{BISMARK_DIR}/{{sample}}_bismark.bam",
         report = f"{BISMARK_DIR}/{{sample}}_bismark_report.txt"
