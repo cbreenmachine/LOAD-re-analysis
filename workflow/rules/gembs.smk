@@ -10,7 +10,7 @@ rule gembs_init:
         conf = f"{GEMBS_DIR}/gembs.conf",
         csv = f"{GEMBS_DIR}/metadata.csv"
     conda:
-        "envs/gemBS"
+        "envs/gembs.yml"
     shell:
         """
         mkdir -p {GEMBS_DIR}
@@ -48,7 +48,7 @@ rule gembs_prepare_reference:
     output:
         index = f"{GEMBS_DIR}/reference/reference.fa.bsb"
     conda:
-        "envs/gemBS"
+        "envs/gembs.yml"
     threads: 8
     shell:
         """
@@ -76,7 +76,7 @@ rule gembs_mapping:
         bams = expand(f"{GEMBS_DIR}/{{sample}}_gembs.bam", sample=SAMPLES),
         report = f"{GEMBS_DIR}/gembs_mapping_report.json"
     conda:
-        "envs/gemBS"
+        "envs/gembs.yml"
     threads: 8
     shell:
         """
