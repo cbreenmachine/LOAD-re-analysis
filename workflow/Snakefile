@@ -4,7 +4,7 @@
 import os
 
 # Sample configuration
-SAMPLES = ["101", "216", "231", "392"]
+SAMPLES = ["101", "213", "261", "392"]
 REFERENCE = "data_raw/GCF_000001405.40_GRCh38.p14_genomic.fa"
 
 # Output directories
