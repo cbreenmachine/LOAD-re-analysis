@@ -34,7 +34,7 @@ rule extract_reads:
     output:
         r1 = f"{EXTRACTED_READS_DIR}/{{sample}}_R1.fastq.gz",
         r2 = f"{EXTRACTED_READS_DIR}/{{sample}}_R2.fastq.gz"
-    conda: envs/samtools.yaml
+    conda: "envs/samtools"
     threads: 4
     shell:
         """
