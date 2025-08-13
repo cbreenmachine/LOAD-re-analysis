@@ -1,16 +1,17 @@
 # ==========================================
 # BISMARK WORKFLOW RULES
 # ==========================================
-from snakemake.io import directory
 
 # Prepare reference genome for Bismark
 rule bismark_genome_preparation:
     input:
         ref = REFERENCE
     output:
-        directory("bismark_genome")
+        # Bismark creates this subdirectory structure
+        ct_conv = "bismark_genome/Bisulfite_Genome/CT_conversion/genome_mfa.CT_conversion.fa",
+        ga_conv = "bismark_genome/Bisulfite_Genome/GA_conversion/genome_mfa.GA_conversion.fa"
     conda:
-        "envs/bismark"
+        "../envs/bismark"
     threads: 8
     shell:
         """
@@ -29,7 +30,7 @@ rule bismark_alignment:
         bam = f"{BISMARK_DIR}/{{sample}}_bismark.bam",
         report = f"{BISMARK_DIR}/{{sample}}_bismark_report.txt"
     conda:
-        "envs/bismark"
+        "../envs/bismark"
     threads: 8
     shell:
         """
