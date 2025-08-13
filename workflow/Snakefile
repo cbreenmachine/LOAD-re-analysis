@@ -1,0 +1,51 @@
+# Snakemake workflow for re-aligning BAM files with Bismark and gemBS
+# Usage: snakemake --use-conda -j 4
+
+import os
+
+# Sample configuration
+SAMPLES = ["101", "216", "231", "392"]
+REFERENCE = "reference.fa"
+
+# Output directories
+BISMARK_DIR = "bismark_results"
+GEMBS_DIR = "gembs_results"
+EXTRACTED_READS_DIR = "extracted_reads"
+
+# Include rule files
+include: "rules/bismark.smk"
+include: "rules/gembs.smk"
+include: "rules/utility.smk"
+
+# Final outputs
+rule all:
+    input:
+        # Bismark outputs
+        expand(f"{BISMARK_DIR}/{{sample}}_bismark.bam", sample=SAMPLES),
+        expand(f"{BISMARK_DIR}/{{sample}}_bismark_report.txt", sample=SAMPLES),
+        # gemBS outputs  
+        expand(f"{GEMBS_DIR}/{{sample}}_gembs.bam", sample=SAMPLES),
+        f"{GEMBS_DIR}/gembs_mapping_report.json"
+
+# Extract reads from original BAM files
+rule extract_reads:
+    input:
+        bam = "{sample}.bam"
+    output:
+        r1 = f"{EXTRACTED_READS_DIR}/{{sample}}_R1.fastq.gz",
+        r2 = f"{EXTRACTED_READS_DIR}/{{sample}}_R2.fastq.gz"
+    conda: envs/samtools.yaml
+    threads: 4
+    shell:
+        """
+        mkdir -p {EXTRACTED_READS_DIR}
+        
+        # Sort BAM by name for proper paired-end extraction
+        samtools sort -n -@ {threads} {input.bam} -o {wildcards.sample}_sorted.bam
+        
+        # Extract paired-end reads
+        samtools fastq -@ {threads} -1 {output.r1} -2 {output.r2} -0 /dev/null -s /dev/null {wildcards.sample}_sorted.bam
+        
+        # Clean up temporary file
+        rm {wildcards.sample}_sorted.bam
+        """
