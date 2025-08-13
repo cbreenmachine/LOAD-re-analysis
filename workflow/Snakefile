@@ -5,7 +5,7 @@ import os
 
 # Sample configuration
 SAMPLES = ["101", "216", "231", "392"]
-REFERENCE = "reference.fa"
+REFERENCE = "data_raw/GCF_000001405.40_GRCh38.p14_genomic.fna"
 
 # Output directories
 BISMARK_DIR = "bismark_results"
@@ -30,7 +30,7 @@ rule all:
 # Extract reads from original BAM files
 rule extract_reads:
     input:
-        bam = "{sample}.bam"
+        bam = "data_raw/{sample}.bam"
     output:
         r1 = f"{EXTRACTED_READS_DIR}/{{sample}}_R1.fastq.gz",
         r2 = f"{EXTRACTED_READS_DIR}/{{sample}}_R2.fastq.gz"
