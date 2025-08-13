@@ -30,6 +30,8 @@ rule bismark_alignment:
     output:
         bam = f"{BISMARK_DIR}/{{sample}}_bismark.bam",
         report = f"{BISMARK_DIR}/{{sample}}_bismark_report.txt"
+    params:
+        genome = f"{BISMARK_DIR}/Bisulfite_Genome"
     conda:
         "../envs/bismark"
     threads: 8
@@ -39,7 +41,7 @@ rule bismark_alignment:
         
         # Run Bismark alignment
         bismark --parallel {threads} \
-                --genome {input.genome} \
+                --genome {params.genome} \
                 --output_dir {BISMARK_DIR} \
                 --temp_dir {BISMARK_DIR}/temp \
                 --basename {wildcards.sample}_bismark \
