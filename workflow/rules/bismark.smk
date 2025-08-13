@@ -1,6 +1,7 @@
 # ==========================================
 # BISMARK WORKFLOW RULES
 # ==========================================
+from snakemake.io import directory
 
 # Prepare reference genome for Bismark
 rule bismark_genome_preparation:
