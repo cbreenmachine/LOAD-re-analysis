@@ -10,8 +10,7 @@ rule bismark_genome_preparation:
         # Bismark creates this subdirectory structure
         ct_conv = f"{BISMARK_DIR}/Bisulfite_Genome/CT_conversion/genome_mfa.CT_conversion.fa",
         ga_conv = f"{BISMARK_DIR}/Bisulfite_Genome/GA_conversion/genome_mfa.GA_conversion.fa"
-    conda:
-        "../envs/bismark"
+    conda: "../envs/bismark.yml"
     threads: 8
     shell:
         """
@@ -32,8 +31,7 @@ rule bismark_alignment:
         report = f"{BISMARK_DIR}/{{sample}}_bismark_report.txt"
     params:
         genome = f"{BISMARK_DIR}/Bisulfite_Genome"
-    conda:
-        "../envs/bismark"
+    conda: "../envs/bismark.yml"
     threads: 8
     shell:
         """
