@@ -1,3 +1,9 @@
+# Custom
+workflow/data_raw/*
+*bam
+*fastq
+*gz
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
