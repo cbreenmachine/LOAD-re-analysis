@@ -12,11 +12,11 @@ rule bismark_genome_preparation:
         ga_conv = f"{BISMARK_DIR}/Bisulfite_Genome/GA_conversion/genome_mfa.GA_conversion.fa"
     conda: "../envs/bismark.yml"
     threads: 8
+    params: bismark_dir=BISMARK_DIR
     shell:
         """
-        mkdir -p bismark_genome
-        cp {input.ref} bismark_genome/
-        bismark_genome_preparation --parallel {threads} bismark_genome/
+        cp {input.ref} {params.bismark_dir}
+        bismark_genome_preparation --parallel {threads} {}
         """
 
 # Run Bismark alignment
@@ -35,7 +35,6 @@ rule bismark_alignment:
     threads: 8
     shell:
         """
-        mkdir -p {BISMARK_DIR}
         
         # Run Bismark alignment
         bismark --parallel {threads} \
