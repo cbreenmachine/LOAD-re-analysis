@@ -16,7 +16,7 @@ rule bismark_genome_preparation:
     shell:
         """
         cp {input.ref} {params.bismark_dir}
-        bismark_genome_preparation --parallel {threads} {}
+        bismark_genome_preparation --parallel {threads} {params.bismark_dir}
         """
 
 # Run Bismark alignment
