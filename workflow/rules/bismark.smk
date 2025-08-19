@@ -7,45 +7,51 @@ rule bismark_genome_preparation:
     input:
         ref = REFERENCE
     output:
-        # Bismark creates this subdirectory structure
-        ct_conv = f"{BISMARK_DIR}/Bisulfite_Genome/CT_conversion/genome_mfa.CT_conversion.fa",
-        ga_conv = f"{BISMARK_DIR}/Bisulfite_Genome/GA_conversion/genome_mfa.GA_conversion.fa"
+        # Bismark creates this subdirectory structure within bismark_results
+        ct_conv = f"{BISMARK_DIR}/genome/Bisulfite_Genome/CT_conversion/genome_mfa.CT_conversion.fa",
+        ga_conv = f"{BISMARK_DIR}/genome/Bisulfite_Genome/GA_conversion/genome_mfa.GA_conversion.fa",
+        ref_copy = f"{BISMARK_DIR}/genome/reference.fa"
     conda: "../envs/bismark.yml"
     threads: 8
     params: 
-        bismark_dir = BISMARK_DIR,
+        genome_dir = f"{BISMARK_DIR}/genome",
         ref_basename = lambda wildcards, input: os.path.basename(input.ref)
     shell:
         """
-        mkdir -p {params.bismark_dir}
+        # Create genome directory within bismark_results
+        mkdir -p {params.genome_dir}
         
-        # Copy reference to bismark directory with correct name
-        cp {input.ref} {params.bismark_dir}/{params.ref_basename}
+        # Copy reference to bismark genome directory
+        cp {input.ref} {output.ref_copy}
         
         # Prepare genome (this will create the Bisulfite_Genome subdirectory)
-        bismark_genome_preparation --parallel {threads} {params.bismark_dir}
+        bismark_genome_preparation --parallel {threads} {params.genome_dir}
         """
 
 # Run Bismark alignment
 rule bismark_alignment:
     input:
-        ct_conv = f"{BISMARK_DIR}/Bisulfite_Genome/CT_conversion/genome_mfa.CT_conversion.fa",
-        ga_conv = f"{BISMARK_DIR}/Bisulfite_Genome/GA_conversion/genome_mfa.GA_conversion.fa",
+        ct_conv = f"{BISMARK_DIR}/genome/Bisulfite_Genome/CT_conversion/genome_mfa.CT_conversion.fa",
+        ga_conv = f"{BISMARK_DIR}/genome/Bisulfite_Genome/GA_conversion/genome_mfa.GA_conversion.fa",
+        ref_copy = f"{BISMARK_DIR}/genome/reference.fa",
         r1 = f"{EXTRACTED_READS_DIR}/{{sample}}_R1.fastq.gz",
         r2 = f"{EXTRACTED_READS_DIR}/{{sample}}_R2.fastq.gz"
     output:
-        bam = f"{BISMARK_DIR}/{{sample}}_bismark.bam",
-        report = f"{BISMARK_DIR}/{{sample}}_bismark_report.txt"
+        bam = f"{BISMARK_DIR}/alignments/{{sample}}_bismark.bam",
+        report = f"{BISMARK_DIR}/reports/{{sample}}_bismark_report.txt"
     params:
-        genome_dir = BISMARK_DIR,  # Directory containing Bisulfite_Genome folder
-        output_dir = BISMARK_DIR,
-        temp_dir = f"{BISMARK_DIR}/temp"
+        genome_dir = f"{BISMARK_DIR}/genome",  # Directory containing Bisulfite_Genome folder
+        output_dir = f"{BISMARK_DIR}/alignments",
+        temp_dir = f"{BISMARK_DIR}/temp",
+        reports_dir = f"{BISMARK_DIR}/reports"
     conda: "../envs/bismark.yml"
     threads: 8
     shell:
         """
-        # Create temp directory
+        # Create output directories
+        mkdir -p {params.output_dir}
         mkdir -p {params.temp_dir}
+        mkdir -p {params.reports_dir}
         
         # Run Bismark alignment
         bismark --parallel {threads} \
@@ -64,6 +70,7 @@ rule bismark_alignment:
             mv "{params.output_dir}/{wildcards.sample}_bismark.bam" {output.bam}
         fi
         
+        # Move report files to reports directory
         if [ -f "{params.output_dir}/{wildcards.sample}_bismark_PE_report.txt" ]; then
             mv "{params.output_dir}/{wildcards.sample}_bismark_PE_report.txt" {output.report}
         elif [ -f "{params.output_dir}/{wildcards.sample}_bismark_report.txt" ]; then
