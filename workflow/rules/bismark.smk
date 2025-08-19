@@ -5,12 +5,11 @@
 # Prepare reference genome for Bismark
 rule bismark_genome_preparation:
     input:
-        ref = REFERENCE
+        ref = f"{BISMARK_DIR}/genome/reference.fa"
     output:
         # Bismark creates this subdirectory structure within bismark_results
         ct_conv = f"{BISMARK_DIR}/genome/Bisulfite_Genome/CT_conversion/genome_mfa.CT_conversion.fa",
         ga_conv = f"{BISMARK_DIR}/genome/Bisulfite_Genome/GA_conversion/genome_mfa.GA_conversion.fa",
-        ref_copy = f"{BISMARK_DIR}/genome/reference.fa"
     conda: "../envs/bismark.yml"
     threads: 8
     params: 
@@ -18,12 +17,6 @@ rule bismark_genome_preparation:
         ref_basename = lambda wildcards, input: os.path.basename(input.ref)
     shell:
         """
-        # Create genome directory within bismark_results
-        mkdir -p {params.genome_dir}
-        
-        # Copy reference to bismark genome directory
-        cp {input.ref} {output.ref_copy}
-        
         # Prepare genome (this will create the Bisulfite_Genome subdirectory)
         bismark_genome_preparation --parallel {threads} {params.genome_dir}
         """
@@ -33,7 +26,7 @@ rule bismark_alignment:
     input:
         ct_conv = f"{BISMARK_DIR}/genome/Bisulfite_Genome/CT_conversion/genome_mfa.CT_conversion.fa",
         ga_conv = f"{BISMARK_DIR}/genome/Bisulfite_Genome/GA_conversion/genome_mfa.GA_conversion.fa",
-        ref_copy = f"{BISMARK_DIR}/genome/reference.fa",
+        ref = f"{BISMARK_DIR}/genome/reference.fa",
         r1 = f"{EXTRACTED_READS_DIR}/{{sample}}_R1.fastq.gz",
         r2 = f"{EXTRACTED_READS_DIR}/{{sample}}_R2.fastq.gz"
     output:
@@ -48,11 +41,6 @@ rule bismark_alignment:
     threads: 8
     shell:
         """
-        # Create output directories
-        mkdir -p {params.output_dir}
-        mkdir -p {params.temp_dir}
-        mkdir -p {params.reports_dir}
-        
         # Run Bismark alignment
         bismark --parallel {threads} \
                 --genome {params.genome_dir} \
@@ -62,21 +50,4 @@ rule bismark_alignment:
                 -1 {input.r1} \
                 -2 {input.r2}
         
-        # Bismark creates files with _pe suffix for paired-end reads
-        # Move and rename output files to match expected names
-        if [ -f "{params.output_dir}/{wildcards.sample}_bismark_pe.bam" ]; then
-            mv "{params.output_dir}/{wildcards.sample}_bismark_pe.bam" {output.bam}
-        elif [ -f "{params.output_dir}/{wildcards.sample}_bismark.bam" ]; then
-            mv "{params.output_dir}/{wildcards.sample}_bismark.bam" {output.bam}
-        fi
-        
-        # Move report files to reports directory
-        if [ -f "{params.output_dir}/{wildcards.sample}_bismark_PE_report.txt" ]; then
-            mv "{params.output_dir}/{wildcards.sample}_bismark_PE_report.txt" {output.report}
-        elif [ -f "{params.output_dir}/{wildcards.sample}_bismark_report.txt" ]; then
-            mv "{params.output_dir}/{wildcards.sample}_bismark_report.txt" {output.report}
-        fi
-        
-        # Clean up temporary directory
-        rm -rf {params.temp_dir}
         """
