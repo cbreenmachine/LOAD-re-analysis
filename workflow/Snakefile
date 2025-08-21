@@ -21,10 +21,10 @@ include: "rules/utility.smk"
 rule all:
     input:
         # Bismark outputs
-        expand(f"{BISMARK_DIR}/alignments/{{sample}}_bismark.bam", sample=SAMPLES),
-        expand(f"{BISMARK_DIR}/reports/{{sample}}_bismark_report.txt", sample=SAMPLES),
+        # expand(f"{BISMARK_DIR}/alignments/{{sample}}_bismark.bam", sample=SAMPLES),
+        # expand(f"{BISMARK_DIR}/reports/{{sample}}_bismark_report.txt", sample=SAMPLES),
         # gemBS outputs  
-        # expand(f"{GEMBS_DIR}/{{sample}}_gembs.bam", sample=SAMPLES),
+        expand(f"{GEMBS_DIR}/{{sample}}_gembs.bam", sample=SAMPLES),
         # f"{GEMBS_DIR}/gembs_mapping_report.json"
 
 # Extract reads from original BAM files
