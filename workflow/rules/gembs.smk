@@ -2,26 +2,9 @@
 # GEMBS WORKFLOW RULES
 # ==========================================
 
-# Initialize gemBS project
-rule gembs_init:
-    input:
-        ref = REFERENCE
-    output:
-        conf = f"{GEMBS_DIR}/gembs.conf",
-        csv = f"{GEMBS_DIR}/metadata.csv"
-    conda:
-        "envs/gembs.yml"
-    shell:
-        """
-        mkdir -p {GEMBS_DIR}
-        cd {GEMBS_DIR}
-        
-        # Initialize gemBS project
-        gemBS init
-        
-        # Create metadata CSV file
-        echo "sample_name,file1,file2,sample_type,sample_group" > metadata.csv
-        """
+rule gembs_prepare_reference:
+    input: REFERENCE
+    output: 
 
 # Create gemBS metadata file
 rule create_gembs_metadata:
