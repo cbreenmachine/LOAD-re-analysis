@@ -1,0 +1,54 @@
+# Directory definitions
+#
+# Note that we can use environment variables ($HOME in this case)
+# and previously defined variables can be used in subsequent definitions
+
+# Ugly, but necessary
+base=/z/Comp/kelesgroup/loadmethyseq/LOAD-re-analysis/workflow
+
+ref_dir = ${base}/data_raw
+reference = ${ref_dir}/GCF_000001405.40_GRCh38.p14_genomic.fa
+
+gembs_dir = ${base}/gembs_results
+
+index_dir = ${base}/index
+sequence_dir = ${base}/extracted_reads/@SAMPLE    # @SAMPLE and @BARCODE are special
+bam_dir = ${gembs_dir}/mapping/@SAMPLE      # variables that are replaced with
+bcf_dir = ${gembs_dir}/calls/@SAMPLE        # the sample name or barcode being
+extract_dir = ${gembs_dir}/extract/@SAMPLE  # worked on during gemBS operation
+report_dir = ${gembs_dir}/report
+
+# General project info
+project = LOAD
+species = Human
+
+# Default parameters
+threads = 8
+cores = 4
+jobs = 4
+
+[mapping] # Begin mapping specific section
+
+memory = 16G
+cores = 16
+merge_cores = 8
+merge_memory = 8G
+
+
+[calling] # Begin calling specific section
+
+cores = 4
+threads = 4
+memory = 6G
+left_trim = 5
+right_trim = 0
+
+[extract] # extract specific section
+
+cores = 4
+threads =8
+memory = 6G
+
+make_cpg = True
+make_non_cpg = True
+make_bedmethyl = True
